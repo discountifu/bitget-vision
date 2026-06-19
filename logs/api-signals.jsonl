@@ -1,0 +1,6 @@
+{"ts":1781848557704,"endpoint":"/api/signals","direction":"long","top":3,"minVolume":5000000,"iso":"2026-06-19T05:55:57.710Z"}
+{"ts":1781848579251,"endpoint":"/api/signals","direction":"short","top":2,"minVolume":5000000,"iso":"2026-06-19T05:56:19.255Z"}
+{"ts":1781849220491,"endpoint":"/api/signals","direction":"long","top":5,"minVolume":5000000,"iso":"2026-06-19T06:07:00.494Z"}
+{"ts":1781849220514,"endpoint":"/api/signals","direction":"short","top":5,"minVolume":5000000,"iso":"2026-06-19T06:07:00.516Z"}
+{"ts":1781849220994,"endpoint":"/api/signals","direction":"long","top":5,"minVolume":10000000,"iso":"2026-06-19T06:07:00.996Z"}
+{"ts":1781849317023,"endpoint":"/api/signals","direction":"long","top":1,"minVolume":5000000,"iso":"2026-06-19T06:08:37.025Z"}

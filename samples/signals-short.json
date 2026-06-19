@@ -1,0 +1,121 @@
+{
+    "generatedAt": "2026-06-19T06:07:00.514Z",
+    "universe": 91,
+    "direction": "short",
+    "weights": {
+        "mom": 0.3,
+        "trend": 0.25,
+        "oi": 0.2,
+        "rsi": 0.1,
+        "fund": 0.1,
+        "ls": 0.05
+    },
+    "results": [
+        {
+            "symbol": "ESPORTSUSDT",
+            "rank": 1,
+            "score": 32.56,
+            "factors": {
+                "mom": -0.2999999999999845,
+                "trend": -0.249853309186897,
+                "oi": -0.0005962572379132285,
+                "rsi": -0.027807837355127315,
+                "fundCrowd": -0.1,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "0.04191",
+                "change24h": "-0.75634",
+                "fundingRate": "0.001688",
+                "oi": "106255425",
+                "volume": "57131389.16751",
+                "markPrice": "0.04191"
+            }
+        },
+        {
+            "symbol": "BSBUSDT",
+            "rank": 2,
+            "score": 27.02,
+            "factors": {
+                "mom": -0.2999967983027253,
+                "trend": -0.2220033732333075,
+                "oi": -0.00035876677058446917,
+                "rsi": -0.02677833103524186,
+                "fundCrowd": -0.062498390947347826,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "0.40571",
+                "change24h": "-0.31367",
+                "fundingRate": "0.00005",
+                "oi": "30777511",
+                "volume": "29705189.87308",
+                "markPrice": "0.40533"
+            }
+        },
+        {
+            "symbol": "SPCXUSDT",
+            "rank": 3,
+            "score": 25.85,
+            "factors": {
+                "mom": -0.21555299760857244,
+                "trend": -0.08608819196815455,
+                "oi": 0.00023849174682753934,
+                "rsi": -0.018507860053646456,
+                "fundCrowd": 0,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "179.38",
+                "change24h": "-0.06074",
+                "fundingRate": "0",
+                "oi": "176190.4",
+                "volume": "547504553.8624",
+                "markPrice": "179.31"
+            }
+        },
+        {
+            "symbol": "XAGUSDT",
+            "rank": 4,
+            "score": 23.48,
+            "factors": {
+                "mom": -0.23203617245900923,
+                "trend": -0.0893012713071581,
+                "oi": -9.675318068935161e-05,
+                "rsi": -0.04306736557673127,
+                "fundCrowd": 0,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "64.04",
+                "change24h": "-0.06742",
+                "fundingRate": "0",
+                "oi": "471554.63",
+                "volume": "120815961.747",
+                "markPrice": "64.04"
+            }
+        },
+        {
+            "symbol": "XPLUSDT",
+            "rank": 5,
+            "score": 17.59,
+            "factors": {
+                "mom": -0.2909267476808469,
+                "trend": -0.09037834664483738,
+                "oi": -0.007382863879853787,
+                "rsi": -0.020220213386486847,
+                "fundCrowd": -0.062498390947347826,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "0.09531",
+                "change24h": "-0.11578",
+                "fundingRate": "0.00005",
+                "oi": "78565737",
+                "volume": "16801231.48894",
+                "markPrice": "0.09537"
+            }
+        }
+    ],
+    "disclaimer": "Data-visualization scores only. Not investment advice."
+}

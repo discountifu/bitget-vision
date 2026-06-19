@@ -1,0 +1,121 @@
+{
+    "generatedAt": "2026-06-19T06:07:00.490Z",
+    "universe": 91,
+    "direction": "long",
+    "weights": {
+        "mom": 0.3,
+        "trend": 0.25,
+        "oi": 0.2,
+        "rsi": 0.1,
+        "fund": 0.1,
+        "ls": 0.05
+    },
+    "results": [
+        {
+            "symbol": "SYNUSDT",
+            "rank": 1,
+            "score": 30.53,
+            "factors": {
+                "mom": 0.2999997670564698,
+                "trend": 0.23745823640617136,
+                "oi": 0.01314350889067125,
+                "rsi": 0.011042277643248746,
+                "fundCrowd": 0,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "0.12339",
+                "change24h": "0.31322",
+                "fundingRate": "-0.001836",
+                "oi": "29382566",
+                "volume": "47720911.33715",
+                "markPrice": "0.12344"
+            }
+        },
+        {
+            "symbol": "SOXLUSDT",
+            "rank": 2,
+            "score": 24.26,
+            "factors": {
+                "mom": 0.28994996110741167,
+                "trend": 0.059653451157698816,
+                "oi": 0.0001399950078942851,
+                "rsi": 0.006987696848458872,
+                "fundCrowd": 0,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "272.33",
+                "change24h": "0.08671",
+                "fundingRate": "0",
+                "oi": "111662.45",
+                "volume": "168232254.5525",
+                "markPrice": "272.46"
+            }
+        },
+        {
+            "symbol": "SNDKUSDT",
+            "rank": 3,
+            "score": 23.01,
+            "factors": {
+                "mom": 0.2883528374206364,
+                "trend": 0.0676858793944598,
+                "oi": -0.0007198111838867085,
+                "rsi": 0.022344342455007157,
+                "fundCrowd": 0,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "2184.71",
+                "change24h": "0.07914",
+                "fundingRate": "0",
+                "oi": "8597.415",
+                "volume": "87550152.49355",
+                "markPrice": "2186.17"
+            }
+        },
+        {
+            "symbol": "CBRSUSDT",
+            "rank": 4,
+            "score": 22.3,
+            "factors": {
+                "mom": 0.28632748262598784,
+                "trend": 0.06608045241725408,
+                "oi": 0.00029885787773102586,
+                "rsi": 0.012992109973400537,
+                "fundCrowd": 0,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "233.55",
+                "change24h": "0.07488",
+                "fundingRate": "0",
+                "oi": "12986.63",
+                "volume": "87954726.7691",
+                "markPrice": "233.49"
+            }
+        },
+        {
+            "symbol": "ALLOUSDT",
+            "rank": 5,
+            "score": 19.84,
+            "factors": {
+                "mom": 0.2946070722529786,
+                "trend": 0.08577152058462326,
+                "oi": 5.045667199326704e-05,
+                "rsi": 0.022158204085561323,
+                "fundCrowd": -0.062498390947347826,
+                "lsCrowd": 0
+            },
+            "snapshot": {
+                "lastPr": "0.39734",
+                "change24h": "0.0892",
+                "fundingRate": "0.00005",
+                "oi": "18670425",
+                "volume": "68916054.26487",
+                "markPrice": "0.39725"
+            }
+        }
+    ],
+    "disclaimer": "Data-visualization scores only. Not investment advice."
+}
