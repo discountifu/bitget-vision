@@ -1,21 +1,23 @@
 "use client";
 
 import { useStore } from "@/store/useStore";
+import { useI18n, type MessageKey } from "@/lib/i18n";
 import { AXIS_OPTIONS } from "@/lib/viz";
 import type { Weights } from "@/lib/scoring";
 
-const WEIGHT_ROWS: { key: keyof Weights; label: string }[] = [
-  { key: "mom", label: "Momentum" },
-  { key: "trend", label: "Trend" },
-  { key: "oi", label: "ΔOI confirm" },
-  { key: "rsi", label: "RSI" },
-  { key: "fund", label: "Funding crowd" },
-  { key: "ls", label: "L/S crowd" },
+const WEIGHT_ROWS: { key: keyof Weights; labelKey: MessageKey }[] = [
+  { key: "mom", labelKey: "factor.mom" },
+  { key: "trend", labelKey: "factor.trend" },
+  { key: "oi", labelKey: "factor.oiConfirm" },
+  { key: "rsi", labelKey: "factor.rsi" },
+  { key: "fund", labelKey: "factor.fundCrowd" },
+  { key: "ls", labelKey: "factor.lsCrowd" },
 ];
 
 const UNIVERSE_OPTIONS = [80, 160, 300, 9999];
 
 function AxisSelect({ axis }: { axis: "x" | "y" | "z" }) {
+  const { t } = useI18n();
   const value = useStore((s) => s.axes[axis]);
   const setAxis = useStore((s) => s.setAxis);
   return (
@@ -28,7 +30,7 @@ function AxisSelect({ axis }: { axis: "x" | "y" | "z" }) {
       >
         {AXIS_OPTIONS.map((o) => (
           <option key={o.key} value={o.key} className="bg-[#0b1018]">
-            {o.label}
+            {t(`axis.${o.key}` as MessageKey)}
           </option>
         ))}
       </select>
@@ -37,6 +39,7 @@ function AxisSelect({ axis }: { axis: "x" | "y" | "z" }) {
 }
 
 export default function ControlPanel() {
+  const { t } = useI18n();
   const requestRefresh = useStore((s) => s.requestRefresh);
   const weights = useStore((s) => s.weights);
   const setWeight = useStore((s) => s.setWeight);
@@ -50,26 +53,26 @@ export default function ControlPanel() {
 
   return (
     <div className="pointer-events-auto flex w-72 flex-col gap-4 rounded-xl border border-white/10 bg-black/55 p-4 text-white shadow-2xl backdrop-blur-md">
-      <Section title="Axis mapping">
+      <Section title={t("panel.axisMapping")}>
         <AxisSelect axis="x" />
         <AxisSelect axis="y" />
         <AxisSelect axis="z" />
       </Section>
 
       <Section
-        title="Factor weights"
+        title={t("panel.factorWeights")}
         action={
           <button
             onClick={resetWeights}
             className="text-[10px] text-muted-foreground hover:text-white"
           >
-            reset
+            {t("panel.reset")}
           </button>
         }
       >
-        {WEIGHT_ROWS.map(({ key, label }) => (
+        {WEIGHT_ROWS.map(({ key, labelKey }) => (
           <div key={key} className="flex items-center gap-2 text-[11px]">
-            <span className="w-24 shrink-0 text-muted-foreground">{label}</span>
+            <span className="w-24 shrink-0 text-muted-foreground">{t(labelKey)}</span>
             <input
               type="range"
               min={0}
@@ -86,7 +89,7 @@ export default function ControlPanel() {
         ))}
       </Section>
 
-      <Section title="Universe">
+      <Section title={t("panel.universe")}>
         <div className="flex gap-1">
           {UNIVERSE_OPTIONS.map((n) => (
             <button
@@ -98,7 +101,7 @@ export default function ControlPanel() {
                   : "border-white/10 bg-black/30 text-muted-foreground hover:border-white/30"
               }`}
             >
-              {n === 9999 ? "All" : `Top ${n}`}
+              {n === 9999 ? t("panel.all") : t("panel.top", { n })}
             </button>
           ))}
         </div>
@@ -113,26 +116,26 @@ export default function ControlPanel() {
               : "border-white/10 bg-black/30 text-muted-foreground"
           }`}
         >
-          {autoRefresh ? "● Auto 20s" : "○ Auto off"}
+          {autoRefresh ? t("panel.autoOn") : t("panel.autoOff")}
         </button>
         <button
           onClick={requestRefresh}
           disabled={loading}
           className="rounded-md border border-white/10 bg-black/30 px-3 py-1.5 text-[11px] hover:border-white/30 disabled:opacity-50"
         >
-          {loading ? "…" : "Refresh"}
+          {loading ? "…" : t("panel.refresh")}
         </button>
       </div>
 
       {data && (
         <div className="grid grid-cols-2 gap-1 border-t border-white/10 pt-2 font-mono text-[10px] text-muted-foreground">
-          <span>Universe</span>
+          <span>{t("panel.statUniverse")}</span>
           <span className="text-right text-white">{data.universe}</span>
-          <span>Stage-2</span>
+          <span>{t("panel.statStage2")}</span>
           <span className="text-right text-white">{data.stage2Count}</span>
-          <span>Bitget calls</span>
+          <span>{t("panel.statCalls")}</span>
           <span className="text-right text-white">{data.bitgetCalls}</span>
-          <span>Updated</span>
+          <span>{t("panel.statUpdated")}</span>
           <span className="text-right text-white">
             {new Date(data.generatedAt).toLocaleTimeString()}
           </span>

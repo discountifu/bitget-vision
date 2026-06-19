@@ -2,10 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { LineChart, Line, ResponsiveContainer, YAxis, Tooltip } from "recharts";
-import { X } from "lucide-react";
+import { X, ExternalLink } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { useScene } from "@/hooks/useScene";
+import { useI18n } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
 import FactorBars from "./FactorBars";
+
+const BITGET_VIP_CODE = "5xw3";
+const tradeUrl = (symbol: string) =>
+  `https://www.bitget.com/futures/usdt/${symbol}?vipCode=${BITGET_VIP_CODE}`;
 
 interface Kline {
   ts: number;
@@ -17,6 +23,7 @@ const fmtVol = (x: number) =>
   x >= 1e9 ? `${(x / 1e9).toFixed(2)}B` : x >= 1e6 ? `${(x / 1e6).toFixed(2)}M` : x.toFixed(0);
 
 export default function DetailPanel() {
+  const { t } = useI18n();
   const selected = useStore((s) => s.selected);
   const setSelected = useStore((s) => s.setSelected);
   const { scored } = useScene();
@@ -50,6 +57,8 @@ export default function DetailPanel() {
 
   const snap = node.snapshot;
   const up = +snap.change24h >= 0;
+  // long/short are mutually exclusive (one is always 0), so show only the active side.
+  const isLong = node.longScore >= node.shortScore;
 
   return (
     <div className="pointer-events-auto flex w-80 flex-col gap-3 rounded-xl border border-white/10 bg-black/55 p-4 text-white shadow-2xl backdrop-blur-md">
@@ -66,15 +75,30 @@ export default function DetailPanel() {
         </button>
       </div>
 
-      <div className="flex gap-2">
-        <ScoreChip label="LONG" value={node.longScore} color="#34ff86" />
-        <ScoreChip label="SHORT" value={node.shortScore} color="#ff4d72" />
+      <div className="flex">
+        <ScoreChip
+          label={isLong ? t("detail.long") : t("detail.short")}
+          value={isLong ? node.longScore : node.shortScore}
+          color={isLong ? "#34ff86" : "#ff4d72"}
+        />
       </div>
+
+      <Button
+        variant="default"
+        size="lg"
+        className="w-full"
+        render={
+          <a href={tradeUrl(node.symbol)} target="_blank" rel="noopener noreferrer" />
+        }
+      >
+        {t("detail.trade")}
+        <ExternalLink className="size-3.5" />
+      </Button>
 
       <div className="h-24 w-full">
         {loading ? (
           <div className="flex h-full items-center justify-center text-[11px] text-muted-foreground">
-            loading K-lines…
+            {t("detail.loadingKlines")}
           </div>
         ) : klines.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
@@ -100,21 +124,21 @@ export default function DetailPanel() {
           </ResponsiveContainer>
         ) : (
           <div className="flex h-full items-center justify-center text-[11px] text-muted-foreground">
-            no K-line data
+            {t("detail.noKlines")}
           </div>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[11px]">
-        <Stat label="24h" value={pct(+snap.change24h)} color={up ? "#9dffc6" : "#ffb3c4"} />
-        <Stat label="Funding" value={pct(+snap.fundingRate)} />
-        <Stat label="Volume" value={fmtVol(+snap.volume)} />
-        <Stat label="OI" value={fmtVol(+snap.oi)} />
+        <Stat label={t("detail.h24")} value={pct(+snap.change24h)} color={up ? "#9dffc6" : "#ffb3c4"} />
+        <Stat label={t("detail.funding")} value={pct(+snap.fundingRate)} />
+        <Stat label={t("detail.volume")} value={fmtVol(+snap.volume)} />
+        <Stat label={t("detail.oi")} value={fmtVol(+snap.oi)} />
       </div>
 
       <div className="border-t border-white/10 pt-2">
         <h3 className="mb-1.5 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
-          Factor breakdown {node.stage2 ? "(Stage 2)" : "(Stage 1)"}
+          {t("detail.factorBreakdown")} {node.stage2 ? t("detail.stage2") : t("detail.stage1")}
         </h3>
         <FactorBars s={node} />
       </div>

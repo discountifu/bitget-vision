@@ -3,17 +3,17 @@
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useStore } from "@/store/useStore";
+import { useI18n } from "@/lib/i18n";
 import ControlPanel from "@/components/ControlPanel";
 import DetailPanel from "@/components/DetailPanel";
 import HoverCard from "@/components/HoverCard";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 // Three.js can't render on the server; load the scene client-only.
 const Scene = dynamic(() => import("@/components/Scene"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
-      initializing star map…
-    </div>
+    <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground" />
   ),
 });
 
@@ -21,6 +21,7 @@ const SNAPSHOT_MIN_VOLUME = 1_000_000;
 const REFRESH_MS = 20_000;
 
 export default function Page() {
+  const { t } = useI18n();
   const setData = useStore((s) => s.setData);
   const setLoading = useStore((s) => s.setLoading);
   const setError = useStore((s) => s.setError);
@@ -63,21 +64,22 @@ export default function Page() {
       <header className="pointer-events-none absolute top-0 right-0 left-0 flex items-start justify-between p-4">
         <div>
           <h1 className="text-lg font-bold tracking-tight">
-            Bitget <span className="text-emerald-400">3D Strength Map</span>
+            Bitget <span className="text-emerald-400">{t("app.titleAccent")}</span>
           </h1>
-          <p className="text-[11px] text-muted-foreground">
-            USDT-perp star map · multi-factor long/short signal engine
-          </p>
+          <p className="text-[11px] text-muted-foreground">{t("app.subtitle")}</p>
         </div>
-        <div className="pointer-events-auto flex items-center gap-2 rounded-lg border border-white/10 bg-black/50 px-3 py-1.5 text-[11px] backdrop-blur-md">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34ff86]" />
-            Long
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-rose-400 shadow-[0_0_8px_#ff4d72]" />
-            Short
-          </span>
+        <div className="pointer-events-auto flex items-center gap-2">
+          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/50 px-3 py-1.5 text-[11px] backdrop-blur-md">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34ff86]" />
+              {t("legend.long")}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-rose-400 shadow-[0_0_8px_#ff4d72]" />
+              {t("legend.short")}
+            </span>
+          </div>
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -98,13 +100,13 @@ export default function Page() {
 
       {/* Footer disclaimer */}
       <div className="pointer-events-none absolute right-4 bottom-3 text-[10px] text-muted-foreground/70">
-        Public Bitget market data · scores are data viz, not investment advice
+        {t("footer.disclaimer")}
       </div>
 
       {error && !data && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="rounded-lg border border-rose-500/40 bg-black/70 px-4 py-3 text-sm text-rose-300">
-            Failed to load market data: {error}
+            {t("error.loadFailed")} {error}
           </div>
         </div>
       )}

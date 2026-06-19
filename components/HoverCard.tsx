@@ -3,15 +3,20 @@
 import { useMemo } from "react";
 import { useStore } from "@/store/useStore";
 import { useScene } from "@/hooks/useScene";
+import { useI18n } from "@/lib/i18n";
 import FactorBars from "./FactorBars";
 
 const pct = (x: number) => `${(x * 100).toFixed(2)}%`;
 
 export default function HoverCard() {
+  const { t } = useI18n();
   const hovered = useStore((s) => s.hovered);
   const { scored } = useScene();
   const node = useMemo(() => scored.find((s) => s.symbol === hovered), [scored, hovered]);
   if (!node) return null;
+
+  // long/short are mutually exclusive (one is always 0), so show only the active side.
+  const isLong = node.longScore >= node.shortScore;
 
   return (
     <div className="pointer-events-none w-64 rounded-xl border border-white/10 bg-black/70 p-3 text-white shadow-2xl backdrop-blur-md">
@@ -21,9 +26,16 @@ export default function HoverCard() {
           {pct(+node.snapshot.change24h)}
         </span>
       </div>
-      <div className="mb-2 flex gap-3 font-mono text-[11px]">
-        <span style={{ color: "#9dffc6" }}>L {node.longScore.toFixed(1)}</span>
-        <span style={{ color: "#ffb3c4" }}>S {node.shortScore.toFixed(1)}</span>
+      <div className="mb-2 font-mono text-[11px]">
+        {isLong ? (
+          <span style={{ color: "#9dffc6" }}>
+            {t("detail.long")} {node.longScore.toFixed(1)}
+          </span>
+        ) : (
+          <span style={{ color: "#ffb3c4" }}>
+            {t("detail.short")} {node.shortScore.toFixed(1)}
+          </span>
+        )}
       </div>
       <FactorBars s={node} />
     </div>

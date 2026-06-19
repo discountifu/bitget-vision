@@ -6,6 +6,7 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import type { Scored } from "@/lib/scoring";
 import { useStore } from "@/store/useStore";
+import { useI18n } from "@/lib/i18n";
 
 const FLOOR = -6;
 const LONG = new THREE.Color(0.2, 1.0, 0.5);
@@ -26,6 +27,7 @@ function Beacon({
   const color = kind === "long" ? LONG : SHORT;
   const score = kind === "long" ? s.longScore : s.shortScore;
   const setSelected = useStore((st) => st.setSelected);
+  const { t } = useI18n();
 
   useFrame((state) => {
     if (!halo.current) return;
@@ -64,7 +66,8 @@ function Beacon({
         >
           <div className="font-bold">{s.symbol.replace("USDT", "")}</div>
           <div>
-            {kind === "long" ? "▲ LONG" : "▼ SHORT"} {score.toFixed(1)}
+            {kind === "long" ? `▲ ${t("detail.long")}` : `▼ ${t("detail.short")}`}{" "}
+            {score.toFixed(1)}
           </div>
         </button>
       </Html>
