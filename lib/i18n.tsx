@@ -5,7 +5,7 @@
 // (matches SSR output → hydration-safe); after mount we resolve the stored
 // choice or the browser language and re-render.
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
 
 export type Locale = "en" | "zh";
 
@@ -71,6 +71,7 @@ const en = {
   "detail.stage1": "(Stage 1)",
   "detail.stage2": "(Stage 2)",
   "detail.trade": "Trade on Bitget",
+  "detail.close": "Close details",
 
   "lang.label": "Language",
 } as const;
@@ -132,6 +133,7 @@ const zh: Record<MessageKey, string> = {
   "detail.stage1": "(一阶段)",
   "detail.stage2": "(二阶段)",
   "detail.trade": "去 Bitget 交易",
+  "detail.close": "关闭详情",
 
   "lang.label": "语言",
 };
@@ -144,6 +146,35 @@ function detectLocale(): Locale {
   return langs.some((l) => l?.toLowerCase().startsWith("zh")) ? "zh" : "en";
 }
 
+const localeListeners = new Set<() => void>();
+
+function getLocaleSnapshot(): Locale {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored === "en" || stored === "zh" ? stored : detectLocale();
+}
+
+function getServerLocaleSnapshot(): Locale {
+  return "en";
+}
+
+function subscribeLocale(listener: () => void) {
+  localeListeners.add(listener);
+
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE_KEY) listener();
+  };
+  window.addEventListener("storage", onStorage);
+
+  return () => {
+    localeListeners.delete(listener);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+function emitLocaleChange() {
+  localeListeners.forEach((listener) => listener());
+}
+
 interface I18nValue {
   locale: Locale;
   setLocale: (l: Locale) => void;
@@ -153,20 +184,15 @@ interface I18nValue {
 const I18nContext = createContext<I18nValue | null>(null);
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+  const locale = useSyncExternalStore(subscribeLocale, getLocaleSnapshot, getServerLocaleSnapshot);
 
-  // Resolve the real locale after mount (localStorage override → browser language).
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as Locale | null;
-    const next = stored === "en" || stored === "zh" ? stored : detectLocale();
-    setLocaleState(next);
-    document.documentElement.lang = next;
-  }, []);
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   const setLocale = useCallback((l: Locale) => {
-    setLocaleState(l);
     localStorage.setItem(STORAGE_KEY, l);
-    document.documentElement.lang = l;
+    emitLocaleChange();
   }, []);
 
   const t = useCallback(
@@ -178,7 +204,9 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     [locale],
   );
 
-  return <I18nContext.Provider value={{ locale, setLocale, t }}>{children}</I18nContext.Provider>;
+  const value = useMemo(() => ({ locale, setLocale, t }), [locale, setLocale, t]);
+
+  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n(): I18nValue {

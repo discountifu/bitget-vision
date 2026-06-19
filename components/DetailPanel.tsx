@@ -68,6 +68,8 @@ export default function DetailPanel() {
           <p className="font-mono text-xs text-muted-foreground">${snap.lastPr}</p>
         </div>
         <button
+          type="button"
+          aria-label={t("detail.close")}
           onClick={() => setSelected(null)}
           className="rounded-md p-1 text-muted-foreground hover:bg-white/10 hover:text-white"
         >
@@ -86,9 +88,10 @@ export default function DetailPanel() {
       <Button
         variant="default"
         size="lg"
+        nativeButton={false}
         className="w-full"
         render={
-          <a href={tradeUrl(node.symbol)} target="_blank" rel="noopener noreferrer" />
+          <a href={tradeUrl(node.symbol)} target="_blank" rel="noopener noreferrer" aria-label={t("detail.trade")} />
         }
       >
         {t("detail.trade")}
@@ -101,7 +104,7 @@ export default function DetailPanel() {
             {t("detail.loadingKlines")}
           </div>
         ) : klines.length > 0 ? (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 288, height: 96 }}>
             <LineChart data={klines}>
               <YAxis domain={["dataMin", "dataMax"]} hide />
               <Tooltip

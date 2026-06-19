@@ -1,152 +1,26 @@
-# Bitget 3D Strength Map — multi-factor long/short signal engine
+# Bitget Vision
 
-An online **3D visualization** that plots every Bitget USDT-perpetual contract as
-a rotatable "strength star map", scores each symbol live across multiple
-dimensions (momentum, open interest, funding-rate crowding, RSI, EMA trend), and
-auto-highlights the **best long** and **best short** candidates. The same engine
-powers an **Agent-callable signal API** and a **transparent, tunable scoring
-model**.
+GitHub 仓库：https://github.com/discountifu/bitget-vision  
+部署链接：https://bitget-vision.vercel.app  
+Bitget 调用日志：https://github.com/discountifu/bitget-vision/blob/main/logs/bitget-calls.jsonl
 
-> Built for the Bitget Hackathon · Track 2 (Trading Infra). Uses **public market
-> data only — no API key, no login**.
+## 思路
 
-![star map](public/starmap.png)
+我做这个项目是因为 Agent 开发和用户交易流程里有一个具体痛点：交易信号通常散在行情列表、K 线、资金费率、持仓量和流动性数据里，Agent 需要自己处理 CORS、限速、缓存、因子归一化、权重组合和解释输出，交易者也只能在多个页面之间切换观察市场。Bitget Vision 的解法是把 Bitget USDT 永续公开行情接入到一个统一的交易 Infra：服务端先用 `tickers` 做全市场粗筛，计算动量、资金费率拥挤度、持仓量和成交额；再只对候选标的拉 K 线，补充 EMA、RSI、多周期动量和 OI 变化；最后输出 `longScore` / `shortScore`、因子拆解和 3D 强弱星图。同一套评分引擎同时服务交易者界面和 Agent 接口，交易者看到市场结构，Agent 通过一次 `GET /api/signals` 拿到可解释的做多/做空候选。
 
-## What it delivers (Track 2, three angles at once)
+## 完成度
 
-- **Trader product** — the rotatable 3D star map dashboard with long/short highlights.
-- **Agent tool** — `GET /api/signals` returns structured top long/short candidates in one fetch.
-- **Strategy evaluation** — fully transparent weighted scoring; every factor's contribution is exposed per symbol and every slider re-scores live.
+开发中主要问题有四个：Bitget 浏览器直连存在 CORS 限制，所以用 Next.js Route Handlers 做服务端代理；行情接口存在限速，所以所有 Bitget 请求只经过 `lib/bitget.ts`，并用 `lru-cache` 做 TTL 缓存；Bitget 没有直接提供历史 OI 序列，所以用服务端内存滚动快照计算 ΔOI；Vercel Serverless 的日志和内存状态会随冷启动丢失，所以当前日志适合 demo 和核验调用链，后续需要接入 Vercel KV / Upstash 做持久化。当前已完成：3D 强弱星图、做多/做空高亮、权重滑块、轴映射、hover 因子拆解、详情面板、`/api/market/snapshot`、`/api/market/klines`、`/api/signals`、Bitget 调用 JSONL 日志、业务信号日志、样例响应。尚未完成：独立 MCP Server、回测接口、持久化审计存储、账户级数据、自动下单。下一步计划补齐 MCP Server，把 `/api/signals` 封装成 Agent 工具，并加入可回放的历史评分快照。技术栈：Next.js 16、React 19、TypeScript、Three.js、React Three Fiber、drei、postprocessing、Zustand、Recharts、lru-cache、Vercel。Bitget 工具使用：Bitget 公开行情 API v2；Agent Hub / Playbook / MCP Server / Skill Hub / 美股数据 API 当前未接入。
 
-## Quick start (zero keys)
+## 对 AI Trading 的看法
+
+Agentic Trading 的价值在于把「行情数据 -> 可解释评分 -> 风控约束 -> 审计日志 -> 执行动作」变成稳定链路。LLM 适合做任务编排、参数选择、解释生成和异常处理，核心交易判断应由确定性的行情工具、评分函数和日志系统支撑。Bitget 如果后续提供更完整的历史 OI、统一市场横截面接口、标准 MCP 工具和可回放沙盒，会显著降低 Agent 接入交易流程的成本。
+
+## 运行
 
 ```bash
 pnpm install
 pnpm dev
-# open http://localhost:3000
 ```
 
-That's it — the backend proxies Bitget's public endpoints, so there is nothing
-to configure.
-
-## Agent / API usage
-
-```bash
-# Top 5 long candidates over symbols with >$5M 24h volume
-curl "http://localhost:3000/api/signals?direction=long&top=5&minVolume=5000000"
-
-# Top 5 shorts
-curl "http://localhost:3000/api/signals?direction=short&top=5"
-
-# Override factor weights inline (w_mom, w_trend, w_oi, w_rsi, w_fund, w_ls)
-curl "http://localhost:3000/api/signals?direction=long&top=5&w_mom=0.5&w_trend=0.4"
-```
-
-Response shape (see `samples/` for full examples):
-
-```jsonc
-{
-  "generatedAt": "2026-06-19T...Z",
-  "universe": 90,
-  "direction": "long",
-  "weights": { "mom": 0.3, "trend": 0.25, "oi": 0.2, "rsi": 0.1, "fund": 0.1, "ls": 0.05 },
-  "results": [
-    {
-      "symbol": "SYNUSDT",
-      "rank": 1,
-      "score": 30.53,
-      "factors": { "mom": 0.30, "trend": 0.30, "oi": 0, "rsi": 0.01, "fundCrowd": 0, "lsCrowd": 0 },
-      "snapshot": { "lastPr": "...", "change24h": "...", "fundingRate": "...", "oi": "...", "volume": "...", "markPrice": "..." }
-    }
-  ],
-  "disclaimer": "Data-visualization scores only. Not investment advice."
-}
-```
-
-### Other endpoints
-
-| Endpoint | Purpose |
-|---|---|
-| `GET /api/market/snapshot?minVolume=1000000` | Full-market factored nodes for the 3D field (client re-scores live as sliders move). |
-| `GET /api/market/klines?symbol=BTCUSDT&granularity=1H&limit=200` | Single-symbol K-line proxy for the detail panel. |
-| `GET /api/signals?...` | Agent-facing ranked long/short signals. |
-
-## How the scoring works (`lib/scoring.ts`)
-
-Two-stage, rate-limit-friendly:
-
-1. **Stage 1 (one tickers call, whole market):** momentum (`change24h`), funding-rate
-   crowding, OI level, liquidity — robustly standardized (median/MAD → `tanh`).
-2. **Stage 2 (shortlist ~36 by directional bias):** pull K-lines and add EMA50 trend,
-   RSI, multi-period momentum, and ΔOI confirmation.
-
-Composite (every factor aligned so **positive = bullish**):
-
-```
-bias        = w_mom·mom + w_trend·trend + w_rsi·rsi + w_oi·oi
-crowd_long  = w_fund·max(0,  fundZ) + w_ls·max(0,  lsZ)
-crowd_short = w_fund·max(0, -fundZ) + w_ls·max(0, -lsZ)
-LongScore   = clamp01(bias  - crowd_long ) · liqGate · 100
-ShortScore  = clamp01(-bias - crowd_short) · liqGate · 100
-```
-
-Extreme positive funding (crowded longs) lowers the long score and lifts the
-short score — crowded-trade contrarianism is baked into the model. Low-liquidity
-symbols are gated down (`liqGate`) or filtered out (`minVolume`).
-
-`computeFactors()` (cross-sectional, runs once server-side) and `combine()`
-(pure per-symbol) are shared by server and client, so weight-slider changes
-re-score instantly in the browser with no refetch.
-
-## Auditable usage records
-
-All Bitget access flows through the single gate in `lib/bitget.ts`. Every call —
-cache hit or real network — is appended to `logs/bitget-calls.jsonl` with
-timestamp, full URL, cache-hit flag, latency, and a cumulative real-call counter.
-Business calls to `/api/signals` are logged to `logs/api-signals.jsonl`. This
-proves the data is genuinely Bitget's and that rate limits are respected (funding
-1 req/s, candles ~20 req/s) via in-memory TTL caching.
-
-```bash
-# real outbound calls vs. cache hits
-grep -c '"cacheHit":false' logs/bitget-calls.jsonl
-grep -c '"cacheHit":true'  logs/bitget-calls.jsonl
-```
-
-## Architecture
-
-```
-Browser (React 19 + R3F + Bloom)
-  ├─ ControlPanel: axis mapping · weight sliders · universe · auto-refresh
-  └─ 3D star map: instanced nodes · long/short beacons · hover factor breakdown · detail panel
-        │ fetch /api/*
-Next.js Route Handlers (server; solves CORS, caches, rolls OI snapshots)
-        │ fetch (public data, no key)
-Bitget public market API v2
-```
-
-Key files: `lib/bitget.ts` (gated client + cache + logging), `lib/scoring.ts`
-(engine), `lib/pipeline.ts` (two-stage build), `lib/oiBuffer.ts` (ΔOI sampling),
-`components/Scene.tsx` + `NodeField` + `Highlights` (3D), `store/useStore.ts`
-(zustand).
-
-## Tech / version notes
-
-Next 16 · React 19 · R3F 9 · drei 10 · @react-three/postprocessing 3 · three 0.184 ·
-zustand 5 · recharts 3 · lru-cache 11.
-
-> Note: drei is pinned to **v10**, not the v9 some early specs reference — drei
-> v9 peers with React 18 / R3F 8 and will not install against React 19 / R3F 9.
-
-## Limitations
-
-- ΔOI uses rolling in-memory snapshots (Bitget has no historical OI endpoint), so
-  it reads 0 on cold start until a second refresh lands.
-- On Vercel serverless, the in-memory cache / OI buffer reset on cold starts and
-  `logs/` writes are ephemeral; swap to Vercel KV / Upstash for durable audit.
-- Long/short ratio (1 req/s) is wired in the client but off by default to stay
-  well under rate limits; all other factors are independent of it.
-
-## Disclaimer
-
-Scores are a data-visualization aid over public market data. **Not investment advice.**
+本项目只使用公开行情数据，无需 API Key。评分结果是数据可视化和研究输出，不构成投资建议。
